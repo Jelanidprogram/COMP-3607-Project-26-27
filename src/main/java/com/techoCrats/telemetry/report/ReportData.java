@@ -11,9 +11,9 @@ public class ReportData {
 
     public ReportData(LinkedHashMap<String, Double> metrics, LinkedHashMap<String, Integer> errorCounts,
                       ArrayList<String> timeline) {
-        this.metrics = metrics;
-        this.errorCounts = errorCounts;
-        this.timeline = timeline;
+        this.metrics = new LinkedHashMap<>(metrics);
+        this.errorCounts = new LinkedHashMap<>(errorCounts);
+        this.timeline = new ArrayList<>(timeline);
     }
 
     public LinkedHashMap<String, Double> getMetrics() {
