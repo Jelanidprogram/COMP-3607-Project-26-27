@@ -1,0 +1,37 @@
+package com.techoCrats.telemetry.report;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+
+public class ReportData {
+
+    private LinkedHashMap<String, Double> metrics;
+    private LinkedHashMap<String, Integer> errorCounts;
+    private ArrayList<String> timeline;
+
+    public ReportData(LinkedHashMap<String, Double> metrics, LinkedHashMap<String, Integer> errorCounts,
+                      ArrayList<String> timeline) {
+        this.metrics = new LinkedHashMap<>(metrics);
+        this.errorCounts = new LinkedHashMap<>(errorCounts);
+        this.timeline = new ArrayList<>(timeline);
+    }
+
+    public LinkedHashMap<String, Double> getMetrics() {
+        return new LinkedHashMap<>(metrics);
+    }
+
+    public double getMetric(String name) {
+        if (metrics.containsKey(name)) {
+            return metrics.get(name);
+        }
+        return 0;
+    }
+
+    public LinkedHashMap<String, Integer> getErrorCounts() {
+        return new LinkedHashMap<>(errorCounts);
+    }
+
+    public ArrayList<String> getTimeline() {
+        return new ArrayList<>(timeline);
+    }
+}
