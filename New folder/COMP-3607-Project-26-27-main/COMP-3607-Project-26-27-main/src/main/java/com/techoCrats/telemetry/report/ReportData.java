@@ -11,13 +11,13 @@ public class ReportData {
 
     public ReportData(LinkedHashMap<String, Double> metrics, LinkedHashMap<String, Integer> errorCounts,
                       ArrayList<String> timeline) {
-        this.metrics = metrics;
-        this.errorCounts = errorCounts;
-        this.timeline = timeline;
+        this.metrics = new LinkedHashMap<>(metrics);
+        this.errorCounts = new LinkedHashMap<>(errorCounts);
+        this.timeline = new ArrayList<>(timeline);
     }
 
     public LinkedHashMap<String, Double> getMetrics() {
-        return metrics;
+        return new LinkedHashMap<>(metrics);
     }
 
     public double getMetric(String name) {
@@ -28,10 +28,10 @@ public class ReportData {
     }
 
     public LinkedHashMap<String, Integer> getErrorCounts() {
-        return errorCounts;
+        return new LinkedHashMap<>(errorCounts);
     }
 
     public ArrayList<String> getTimeline() {
-        return timeline;
+        return new ArrayList<>(timeline);
     }
 }
