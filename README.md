@@ -16,6 +16,12 @@ BlueJTelemetry is a Maven-based Java project.
 - `src/test/java/com/techoCrats/telemetry/` contains tests.
 - `pom.xml` defines the Maven project.
 
+## Project wiki
+
+The project documentation wiki is maintained as Markdown pages in
+[`src/main/java/com/techoCrats/telemetry/report/Repo Wiki/`](src/main/java/com/techoCrats/telemetry/report/Repo%20Wiki/Home.md).
+Start with the [wiki home](src/main/java/com/techoCrats/telemetry/report/Repo%20Wiki/Home.md).
+
 ## Building
 
 The BlueJ Extensions API is supplied by BlueJ and is not published to Maven
