@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportAggregator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.report</a> &gt; <span class="el_source">ReportAggregator.java</span></div><h1>ReportAggregator.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.report;
+
+import com.techoCrats.telemetry.model.CompileEvent;
+import com.techoCrats.telemetry.model.LifecycleEvent;
+import com.techoCrats.telemetry.model.Session;
+import com.techoCrats.telemetry.model.TelemetryEvent;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+
+public class ReportAggregator {
+
+    private ArrayList&lt;MetricCalculator&gt; calculators;
+
+<span class="fc" id="L14">    public ReportAggregator() {</span>
+<span class="fc" id="L15">        calculators = new ArrayList&lt;MetricCalculator&gt;();</span>
+<span class="fc" id="L16">        calculators.add(new ActiveTimeCalculator());</span>
+<span class="fc" id="L17">        calculators.add(new IdleTimeCalculator());</span>
+<span class="fc" id="L18">        calculators.add(new CompileAttemptsCalculator());</span>
+<span class="fc" id="L19">        calculators.add(new CompileSuccessRateCalculator());</span>
+<span class="fc" id="L20">        calculators.add(new ErrorRatioCalculator());</span>
+<span class="fc" id="L21">        calculators.add(new EditCountCalculator());</span>
+<span class="fc" id="L22">        calculators.add(new CharactersInsertedCalculator());</span>
+<span class="fc" id="L23">        calculators.add(new EditFrequencyCalculator());</span>
+<span class="fc" id="L24">    }</span>
+
+    public void addCalculator(MetricCalculator calculator) {
+<span class="fc" id="L27">        calculators.add(calculator);</span>
+<span class="fc" id="L28">    }</span>
+
+    public ReportData aggregate(Session session) {
+<span class="fc" id="L31">        ArrayList&lt;TelemetryEvent&gt; events = session.getEvents();</span>
+
+<span class="fc" id="L33">        LinkedHashMap&lt;String, Double&gt; metrics = new LinkedHashMap&lt;String, Double&gt;();</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        for (MetricCalculator calculator : calculators) {</span>
+            double value;
+<span class="fc bfc" id="L36" title="All 2 branches covered.">            if (calculator instanceof ActiveTimeCalculator) {</span>
+<span class="fc" id="L37">                value = ((ActiveTimeCalculator) calculator).calculate(session);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            } else if (calculator instanceof IdleTimeCalculator) {</span>
+<span class="fc" id="L39">                value = ((IdleTimeCalculator) calculator).calculate(session);</span>
+<span class="fc" id="L40">            } else {</span>
+<span class="fc" id="L41">                value = calculator.calculate(events);</span>
+            }
+<span class="fc" id="L43">            metrics.put(calculator.getName(), value);</span>
+        }
+
+<span class="fc" id="L46">        return new ReportData(metrics, countErrors(events), buildTimeline(events));</span>
+    }
+
+    private LinkedHashMap&lt;String, Integer&gt; countErrors(ArrayList&lt;TelemetryEvent&gt; events) {
+<span class="fc" id="L50">        LinkedHashMap&lt;String, Integer&gt; counts = new LinkedHashMap&lt;String, Integer&gt;();</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        for (TelemetryEvent event : events) {</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (event.getType().equals(&quot;COMPILE&quot;)) {</span>
+<span class="fc" id="L53">                CompileEvent compile = (CompileEvent) event;</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">                if (!compile.isSuccessful()) {</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                    String type = compile.getErrorType() == null ? &quot;COMPILATION_ERROR&quot; : compile.getErrorType();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">                    if (counts.containsKey(type)) {</span>
+<span class="nc" id="L57">                        counts.put(type, counts.get(type) + 1);</span>
+<span class="nc" id="L58">                    } else {</span>
+<span class="fc" id="L59">                        counts.put(type, 1);</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L64">        return counts;</span>
+    }
+
+    private ArrayList&lt;String&gt; buildTimeline(ArrayList&lt;TelemetryEvent&gt; events) {
+<span class="fc" id="L68">        ArrayList&lt;String&gt; timeline = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        for (TelemetryEvent event : events) {</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            if (event.getType().equals(&quot;LIFECYCLE&quot;)) {</span>
+<span class="fc" id="L71">                LifecycleEvent lifecycle = (LifecycleEvent) event;</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">                if (lifecycle.getAction().startsWith(&quot;CLASS_&quot;)</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                        || lifecycle.getAction().equals(&quot;METHOD_ADDED&quot;)) {</span>
+<span class="fc" id="L74">                    timeline.add(event.getTimeText() + &quot;  &quot; + lifecycle.getAction() + &quot;  &quot; + lifecycle.getName());</span>
+                }
+            }
+        }
+<span class="fc" id="L78">        return timeline;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -16,7 +16,17 @@ public final class RunListener implements bluej.extensions2.event.InvocationFini
         bluej.extensions2.event.InvocationFinishedEvent.EventType eventType = event.getEventType();
         boolean successful = eventType == bluej.extensions2.event.InvocationFinishedEvent.EventType.NORMAL_EXIT;
         String exception = eventType == bluej.extensions2.event.InvocationFinishedEvent.EventType.EXCEPTION_EXIT
-                ? eventType.name() : null;
-        collector.collect(new RunEvent(System.currentTimeMillis(), successful, exception));
+                ? describe(event.getResult(), eventType.name()) : null;
+        String resultSummary = successful ? describe(event.getResult(), null) : null;
+        collector.collect(new RunEvent(System.currentTimeMillis(), successful, exception,
+                event.getClassName(), event.getMethodName(), resultSummary));
+    }
+
+    private String describe(Object value, String fallback) {
+        if (value == null) {
+            return fallback;
+        }
+        String description = value.toString();
+        return description.length() <= 500 ? description : description.substring(0, 500);
     }
 }

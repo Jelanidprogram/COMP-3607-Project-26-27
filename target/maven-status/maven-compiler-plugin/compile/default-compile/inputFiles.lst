@@ -1,14 +1,37 @@
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\collector\CompileListener.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\collector\EventCollector.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\collector\IdleDetector.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\collector\RunListener.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\exporter\JsonExporter.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\exporter\PdfExporter.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\extension\TelemetryExtension.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\model\CompileEvent.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\model\RunEvent.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\model\Session.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\model\TelemetryEvent.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\processor\TelemetryProcessor.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\report\ReportAggregator.java
-C:\Users\Adam\Desktop\School\Object 2\BlueJTelemetry\src\main\java\com\techoCrats\telemetry\storage\EventStorage.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\collector\CompileErrorClassifier.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\collector\CompileListener.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\collector\EditorTelemetryTracker.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\collector\EventCollector.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\collector\IdleDetector.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\collector\LifecycleListener.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\collector\RunListener.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\collector\TelemetryEventObserver.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\exporter\ExportStrategy.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\exporter\JsonExporter.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\exporter\JsonExportStrategy.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\exporter\PdfExporter.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\exporter\PdfExportStrategy.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\exporter\TelemetryExporter.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\extension\TelemetryExtension.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\extension\TelemetryMenuGenerator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\model\CompileEvent.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\model\EditorEvent.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\model\IdleEvent.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\model\Json.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\model\LifecycleEvent.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\model\RunEvent.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\model\Session.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\model\TelemetryEvent.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\processor\TelemetryProcessor.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\ActiveTimeCalculator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\CharactersInsertedCalculator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\CompileAttemptsCalculator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\CompileSuccessRateCalculator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\EditCountCalculator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\EditFrequencyCalculator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\ErrorRatioCalculator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\IdleTimeCalculator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\MetricCalculator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\ReportAggregator.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\report\ReportData.java
+C:\Users\Adam\Desktop\COMP-3607-Project-26-27\src\main\java\com\techoCrats\telemetry\storage\EventStorage.java

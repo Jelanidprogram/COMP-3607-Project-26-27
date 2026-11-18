@@ -6,7 +6,6 @@ import com.techoCrats.telemetry.model.Session;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class IdleTimeCalculator implements MetricCalculator {
 
     public String getName() {
@@ -23,6 +22,7 @@ public class IdleTimeCalculator implements MetricCalculator {
         }
         return idle;
     }
+
     public double calculate(Session session) {
         List<Long> edits = session.getEvents().stream()
                 .filter(EditorEvent.class::isInstance)

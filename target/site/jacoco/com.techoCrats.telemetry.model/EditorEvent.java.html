@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EditorEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.model</a> &gt; <span class="el_source">EditorEvent.java</span></div><h1>EditorEvent.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.model;
+
+import java.util.LinkedHashMap;
+import java.util.Objects;
+
+public final class EditorEvent extends TelemetryEvent {
+
+    private final String className;
+    private final int offset;
+    private final int removedCharacters;
+    private final int insertedCharacters;
+
+    public EditorEvent(long timestamp, String className, int offset, int removedCharacters, int insertedCharacters) {
+<span class="fc" id="L14">        super(timestamp, &quot;EDITOR_EDIT&quot;);</span>
+<span class="fc" id="L15">        this.className = Objects.requireNonNull(className, &quot;className&quot;);</span>
+<span class="pc bpc" id="L16" title="3 of 6 branches missed.">        if (offset &lt; 0 || removedCharacters &lt; 0 || insertedCharacters &lt; 0) {</span>
+<span class="nc" id="L17">            throw new IllegalArgumentException(&quot;Edit positions and character counts must be non-negative&quot;);</span>
+        }
+<span class="fc" id="L19">        this.offset = offset;</span>
+<span class="fc" id="L20">        this.removedCharacters = removedCharacters;</span>
+<span class="fc" id="L21">        this.insertedCharacters = insertedCharacters;</span>
+<span class="fc" id="L22">    }</span>
+
+    public String getClassName() {
+<span class="nc" id="L25">        return className;</span>
+    }
+
+    public int getOffset() {
+<span class="nc" id="L29">        return offset;</span>
+    }
+
+    public int getRemovedCharacters() {
+<span class="nc" id="L33">        return removedCharacters;</span>
+    }
+
+    public int getInsertedCharacters() {
+<span class="fc" id="L37">        return insertedCharacters;</span>
+    }
+
+    @Override
+    public String toJson() {
+<span class="nc" id="L42">        LinkedHashMap&lt;String, Object&gt; values = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L43">        values.put(&quot;type&quot;, getType());</span>
+<span class="nc" id="L44">        values.put(&quot;time&quot;, getTimeText());</span>
+<span class="nc" id="L45">        values.put(&quot;className&quot;, className);</span>
+<span class="nc" id="L46">        values.put(&quot;offset&quot;, offset);</span>
+<span class="nc" id="L47">        values.put(&quot;removedCharacters&quot;, removedCharacters);</span>
+<span class="nc" id="L48">        values.put(&quot;insertedCharacters&quot;, insertedCharacters);</span>
+<span class="nc" id="L49">        return Json.stringify(values);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

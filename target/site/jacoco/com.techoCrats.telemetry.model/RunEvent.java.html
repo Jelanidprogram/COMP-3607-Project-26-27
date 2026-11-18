@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RunEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.model</a> &gt; <span class="el_source">RunEvent.java</span></div><h1>RunEvent.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.model;
+
+import java.util.LinkedHashMap;
+
+public final class RunEvent extends TelemetryEvent {
+
+    private final boolean successful;
+    private final String exception;
+    private final String className;
+    private final String methodName;
+    private final String resultSummary;
+
+    public RunEvent(long timestamp, boolean successful, String exception) {
+<span class="fc" id="L14">        this(timestamp, successful, exception, null, null, null);</span>
+<span class="fc" id="L15">    }</span>
+
+    public RunEvent(long timestamp, boolean successful, String exception, String className,
+                    String methodName, String resultSummary) {
+<span class="fc" id="L19">        super(timestamp, &quot;RUN&quot;);</span>
+<span class="fc" id="L20">        this.successful = successful;</span>
+<span class="fc" id="L21">        this.exception = exception;</span>
+<span class="fc" id="L22">        this.className = className;</span>
+<span class="fc" id="L23">        this.methodName = methodName;</span>
+<span class="fc" id="L24">        this.resultSummary = resultSummary;</span>
+<span class="fc" id="L25">    }</span>
+
+    public boolean isSuccessful() {
+<span class="nc" id="L28">        return successful;</span>
+    }
+
+    public String getException() {
+<span class="nc" id="L32">        return exception;</span>
+    }
+
+    public String getClassName() {
+<span class="nc" id="L36">        return className;</span>
+    }
+
+    public String getMethodName() {
+<span class="nc" id="L40">        return methodName;</span>
+    }
+
+    public String getResultSummary() {
+<span class="nc" id="L44">        return resultSummary;</span>
+    }
+
+    public boolean endedWithException() {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        return exception != null;</span>
+    }
+
+    @Override
+    public String toJson() {
+<span class="fc" id="L53">        LinkedHashMap&lt;String, Object&gt; values = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L54">        values.put(&quot;type&quot;, getType());</span>
+<span class="fc" id="L55">        values.put(&quot;time&quot;, getTimeText());</span>
+<span class="fc" id="L56">        values.put(&quot;successful&quot;, successful);</span>
+<span class="fc" id="L57">        values.put(&quot;exception&quot;, exception);</span>
+<span class="fc" id="L58">        values.put(&quot;className&quot;, className);</span>
+<span class="fc" id="L59">        values.put(&quot;methodName&quot;, methodName);</span>
+<span class="fc" id="L60">        values.put(&quot;resultSummary&quot;, resultSummary);</span>
+<span class="fc" id="L61">        return Json.stringify(values);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

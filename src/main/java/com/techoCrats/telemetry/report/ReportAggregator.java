@@ -18,10 +18,9 @@ public class ReportAggregator {
         calculators.add(new CompileAttemptsCalculator());
         calculators.add(new CompileSuccessRateCalculator());
         calculators.add(new ErrorRatioCalculator());
-        calculators.add(new EditCountCalculator));
+        calculators.add(new EditCountCalculator());
         calculators.add(new CharactersInsertedCalculator());
         calculators.add(new EditFrequencyCalculator());
-
     }
 
     public void addCalculator(MetricCalculator calculator) {
@@ -53,7 +52,7 @@ public class ReportAggregator {
             if (event.getType().equals("COMPILE")) {
                 CompileEvent compile = (CompileEvent) event;
                 if (!compile.isSuccessful()) {
-                    String type = compile.getErrorType();
+                    String type = compile.getErrorType() == null ? "COMPILATION_ERROR" : compile.getErrorType();
                     if (counts.containsKey(type)) {
                         counts.put(type, counts.get(type) + 1);
                     } else {
@@ -70,7 +69,7 @@ public class ReportAggregator {
         for (TelemetryEvent event : events) {
             if (event.getType().equals("LIFECYCLE")) {
                 LifecycleEvent lifecycle = (LifecycleEvent) event;
-                if (lifecycle.getAction().equals("CLASS_CREATED")
+                if (lifecycle.getAction().startsWith("CLASS_")
                         || lifecycle.getAction().equals("METHOD_ADDED")) {
                     timeline.add(event.getTimeText() + "  " + lifecycle.getAction() + "  " + lifecycle.getName());
                 }

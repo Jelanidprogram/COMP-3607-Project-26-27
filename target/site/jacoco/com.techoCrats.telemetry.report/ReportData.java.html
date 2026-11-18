@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.report</a> &gt; <span class="el_source">ReportData.java</span></div><h1>ReportData.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.report;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+
+public class ReportData {
+
+    private LinkedHashMap&lt;String, Double&gt; metrics;
+    private LinkedHashMap&lt;String, Integer&gt; errorCounts;
+    private ArrayList&lt;String&gt; timeline;
+
+<span class="fc" id="L12">    public ReportData(LinkedHashMap&lt;String, Double&gt; metrics, LinkedHashMap&lt;String, Integer&gt; errorCounts,</span>
+                      ArrayList&lt;String&gt; timeline) {
+<span class="fc" id="L14">        this.metrics = new LinkedHashMap&lt;&gt;(metrics);</span>
+<span class="fc" id="L15">        this.errorCounts = new LinkedHashMap&lt;&gt;(errorCounts);</span>
+<span class="fc" id="L16">        this.timeline = new ArrayList&lt;&gt;(timeline);</span>
+<span class="fc" id="L17">    }</span>
+
+    public LinkedHashMap&lt;String, Double&gt; getMetrics() {
+<span class="fc" id="L20">        return new LinkedHashMap&lt;&gt;(metrics);</span>
+    }
+
+    public double getMetric(String name) {
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (metrics.containsKey(name)) {</span>
+<span class="fc" id="L25">            return metrics.get(name);</span>
+        }
+<span class="fc" id="L27">        return 0;</span>
+    }
+
+    public LinkedHashMap&lt;String, Integer&gt; getErrorCounts() {
+<span class="fc" id="L31">        return new LinkedHashMap&lt;&gt;(errorCounts);</span>
+    }
+
+    public ArrayList&lt;String&gt; getTimeline() {
+<span class="fc" id="L35">        return new ArrayList&lt;&gt;(timeline);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

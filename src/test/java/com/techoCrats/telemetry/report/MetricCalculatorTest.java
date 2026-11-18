@@ -3,6 +3,7 @@ package com.techoCrats.telemetry.report;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.techoCrats.telemetry.model.CompileEvent;
+import com.techoCrats.telemetry.model.EditorEvent;
 import com.techoCrats.telemetry.model.LifecycleEvent;
 import com.techoCrats.telemetry.model.RunEvent;
 import com.techoCrats.telemetry.model.Session;
@@ -74,11 +75,28 @@ public class MetricCalculatorTest {
         }
         ReportData report = new ReportAggregator().aggregate(session);
 
-        assertEquals(5, report.getMetrics().size());
+        assertEquals(8, report.getMetrics().size());
         assertEquals(380, report.getMetric("activeTimeSeconds"), 0.001);
         assertEquals(1, (int) report.getErrorCounts().get("MISSING_SEMICOLON"));
         assertEquals(1, report.getTimeline().size());
         assertTrue(report.getTimeline().get(0).contains("Room"));
+    }
+
+    @Test
+    public void editorEventsDriveActiveIdleAndTypingMetrics() {
+        Session session = Session.builder().sessionId("s1").studentId("student").startTime(0).build();
+        session.addEvent(new EditorEvent(seconds(1), "Room", 0, 0, 4));
+        session.addEvent(new EditorEvent(seconds(121), "Room", 4, 0, 2));
+        session.addEvent(new EditorEvent(seconds(421), "Room", 6, 1, 0));
+        session.end(seconds(500));
+
+        ReportData report = new ReportAggregator().aggregate(session);
+
+        assertEquals(379, report.getMetric("activeTimeSeconds"), 0.001);
+        assertEquals(120, report.getMetric("idleTimeSeconds"), 0.001);
+        assertEquals(3, report.getMetric("editCount"), 0.001);
+        assertEquals(6, report.getMetric("charactersInserted"), 0.001);
+        assertEquals(3.0 / 7.0, report.getMetric("editsPerMinute"), 0.001);
     }
 
     @Test

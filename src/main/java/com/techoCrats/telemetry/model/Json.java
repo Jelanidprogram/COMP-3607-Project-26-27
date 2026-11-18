@@ -1,8 +1,17 @@
 package com.techoCrats.telemetry.model;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public final class Json {
 
+    private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
+
     private Json() {
+    }
+
+    public static String stringify(Object value) {
+        return GSON.toJson(value);
     }
 
     public static String escape(String value) {

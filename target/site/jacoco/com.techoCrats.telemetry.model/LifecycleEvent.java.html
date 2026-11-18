@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LifecycleEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.model</a> &gt; <span class="el_source">LifecycleEvent.java</span></div><h1>LifecycleEvent.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.model;
+
+import java.util.Objects;
+import java.util.LinkedHashMap;
+
+public final class LifecycleEvent extends TelemetryEvent {
+
+    private final String action;
+    private final String name;
+
+    public LifecycleEvent(long timestamp, String action, String name) {
+<span class="fc" id="L12">        super(timestamp, &quot;LIFECYCLE&quot;);</span>
+<span class="fc" id="L13">        this.action = Objects.requireNonNull(action, &quot;action&quot;);</span>
+<span class="fc" id="L14">        this.name = Objects.requireNonNull(name, &quot;name&quot;);</span>
+<span class="fc" id="L15">    }</span>
+
+    public String getAction() {
+<span class="fc" id="L18">        return action;</span>
+    }
+
+    public String getName() {
+<span class="fc" id="L22">        return name;</span>
+    }
+
+    @Override
+    public String toJson() {
+<span class="fc" id="L27">        LinkedHashMap&lt;String, Object&gt; values = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L28">        values.put(&quot;type&quot;, getType());</span>
+<span class="fc" id="L29">        values.put(&quot;time&quot;, getTimeText());</span>
+<span class="fc" id="L30">        values.put(&quot;action&quot;, action);</span>
+<span class="fc" id="L31">        values.put(&quot;name&quot;, name);</span>
+<span class="fc" id="L32">        return Json.stringify(values);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

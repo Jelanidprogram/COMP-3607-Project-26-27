@@ -17,7 +17,7 @@ public class ReportData {
     }
 
     public LinkedHashMap<String, Double> getMetrics() {
-        return metrics;
+        return new LinkedHashMap<>(metrics);
     }
 
     public double getMetric(String name) {
@@ -28,10 +28,10 @@ public class ReportData {
     }
 
     public LinkedHashMap<String, Integer> getErrorCounts() {
-        return errorCounts;
+        return new LinkedHashMap<>(errorCounts);
     }
 
     public ArrayList<String> getTimeline() {
-        return timeline;
+        return new ArrayList<>(timeline);
     }
 }
