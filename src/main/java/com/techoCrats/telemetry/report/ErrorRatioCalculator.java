@@ -1,6 +1,7 @@
 package com.techoCrats.telemetry.report;
 
 import com.techoCrats.telemetry.model.RunEvent;
+import com.techoCrats.telemetry.model.Session;
 import com.techoCrats.telemetry.model.TelemetryEvent;
 import java.util.ArrayList;
 
@@ -10,7 +11,8 @@ public class ErrorRatioCalculator implements MetricCalculator {
         return "runtimeErrorRatio";
     }
 
-    public double calculate(ArrayList<TelemetryEvent> events) {
+    public double calculate(Session session) {
+        ArrayList<TelemetryEvent> events = session.getEvents();
         int runs = 0;
         int errors = 0;
         for (TelemetryEvent event : events) {

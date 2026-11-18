@@ -1,18 +1,22 @@
 package com.techoCrats.telemetry.report;
 
-import com.techoCrats.telemetry.model.TelemetryEvent;
+import com.techoCrats.telemetry.model.Session;
 import java.util.ArrayList;
 
 public class IdleTimeCalculator implements MetricCalculator {
 
+    @Override
     public String getName() {
         return "idleTimeSeconds";
     }
 
-    public double calculate(ArrayList<TelemetryEvent> events) {
+    @Override
+    public double calculate(Session session) {
+        ArrayList<Long> times = EditTimes.activityTimes(session);
+
         long idle = 0;
-        for (int i = 1; i < events.size(); i++) {
-            long gap = (events.get(i).getTimestamp() - events.get(i - 1).getTimestamp()) / 1000;
+        for (int i = 1; i < times.size(); i++) {
+            long gap = (times.get(i) - times.get(i - 1)) / 1000;
             if (gap > ActiveTimeCalculator.IDLE_LIMIT_SECONDS) {
                 idle = idle + (gap - ActiveTimeCalculator.IDLE_LIMIT_SECONDS);
             }

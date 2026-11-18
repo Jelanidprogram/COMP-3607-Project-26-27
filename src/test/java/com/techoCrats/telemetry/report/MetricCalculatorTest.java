@@ -3,6 +3,7 @@ package com.techoCrats.telemetry.report;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.techoCrats.telemetry.model.CompileEvent;
+import com.techoCrats.telemetry.model.EditorEvent;
 import com.techoCrats.telemetry.model.LifecycleEvent;
 import com.techoCrats.telemetry.model.RunEvent;
 import com.techoCrats.telemetry.model.Session;
@@ -19,6 +20,14 @@ public class MetricCalculatorTest {
         return s * 1000L;
     }
 
+    private Session sessionOf(ArrayList<TelemetryEvent> list) {
+        Session session = new Session("s1", "816000000", 0);
+        for (TelemetryEvent event : list) {
+            session.addEvent(event);
+        }
+        return session;
+    }
+
     @BeforeEach
     public void setUp() {
         events = new ArrayList<TelemetryEvent>();
@@ -33,37 +42,37 @@ public class MetricCalculatorTest {
     @Test
     public void activeTimeCapsLongGapsAt180Seconds() {
         // gaps: 60, 60, 30, 500 (counts as 180), 50
-        assertEquals(380, new ActiveTimeCalculator().calculate(events), 0.001);
+        assertEquals(380, new ActiveTimeCalculator().calculate(sessionOf(events)), 0.001);
     }
 
     @Test
     public void idleTimeIsTheRestOfLongGaps() {
-        assertEquals(320, new IdleTimeCalculator().calculate(events), 0.001);
+        assertEquals(320, new IdleTimeCalculator().calculate(sessionOf(events)), 0.001);
     }
 
     @Test
     public void countsCompileAttempts() {
-        assertEquals(3, new CompileAttemptsCalculator().calculate(events), 0.001);
+        assertEquals(3, new CompileAttemptsCalculator().calculate(sessionOf(events)), 0.001);
     }
 
     @Test
     public void compileSuccessRateIsAPercentage() {
-        assertEquals(66.667, new CompileSuccessRateCalculator().calculate(events), 0.001);
+        assertEquals(66.667, new CompileSuccessRateCalculator().calculate(sessionOf(events)), 0.001);
     }
 
     @Test
     public void errorRatioIsPercentageOfRunsWithExceptions() {
-        assertEquals(50, new ErrorRatioCalculator().calculate(events), 0.001);
+        assertEquals(50, new ErrorRatioCalculator().calculate(sessionOf(events)), 0.001);
     }
 
     @Test
     public void emptyListGivesZeroForEveryCalculator() {
         ArrayList<TelemetryEvent> empty = new ArrayList<TelemetryEvent>();
-        assertEquals(0, new ActiveTimeCalculator().calculate(empty), 0.001);
-        assertEquals(0, new IdleTimeCalculator().calculate(empty), 0.001);
-        assertEquals(0, new CompileAttemptsCalculator().calculate(empty), 0.001);
-        assertEquals(0, new CompileSuccessRateCalculator().calculate(empty), 0.001);
-        assertEquals(0, new ErrorRatioCalculator().calculate(empty), 0.001);
+        assertEquals(0, new ActiveTimeCalculator().calculate(sessionOf(empty)), 0.001);
+        assertEquals(0, new IdleTimeCalculator().calculate(sessionOf(empty)), 0.001);
+        assertEquals(0, new CompileAttemptsCalculator().calculate(sessionOf(empty)), 0.001);
+        assertEquals(0, new CompileSuccessRateCalculator().calculate(sessionOf(empty)), 0.001);
+        assertEquals(0, new ErrorRatioCalculator().calculate(sessionOf(empty)), 0.001);
     }
 
     @Test
@@ -74,11 +83,28 @@ public class MetricCalculatorTest {
         }
         ReportData report = new ReportAggregator().aggregate(session);
 
-        assertEquals(5, report.getMetrics().size());
+        assertEquals(8, report.getMetrics().size());
         assertEquals(380, report.getMetric("activeTimeSeconds"), 0.001);
         assertEquals(1, (int) report.getErrorCounts().get("MISSING_SEMICOLON"));
         assertEquals(1, report.getTimeline().size());
         assertTrue(report.getTimeline().get(0).contains("Room"));
+    }
+
+    @Test
+    public void editorEventsDriveActiveIdleAndTypingMetrics() {
+        Session session = Session.builder().sessionId("s1").studentId("student").startTime(0).build();
+        session.addEvent(new EditorEvent(seconds(1), "Room", 0, 0, 4));
+        session.addEvent(new EditorEvent(seconds(121), "Room", 4, 0, 2));
+        session.addEvent(new EditorEvent(seconds(421), "Room", 6, 1, 0));
+        session.end(seconds(500));
+
+        ReportData report = new ReportAggregator().aggregate(session);
+
+        assertEquals(379, report.getMetric("activeTimeSeconds"), 0.001);
+        assertEquals(120, report.getMetric("idleTimeSeconds"), 0.001);
+        assertEquals(3, report.getMetric("editCount"), 0.001);
+        assertEquals(6, report.getMetric("charactersInserted"), 0.001);
+        assertEquals(3.0 / 7.0, report.getMetric("editsPerMinute"), 0.001);
     }
 
     @Test
@@ -89,8 +115,8 @@ public class MetricCalculatorTest {
                 return "eventCount";
             }
 
-            public double calculate(ArrayList<TelemetryEvent> list) {
-                return list.size();
+            public double calculate(Session s) {
+                return s.getEvents().size();
             }
         });
         Session session = new Session("s1", "816000000", 0);

@@ -1,6 +1,7 @@
 package com.techoCrats.telemetry.report;
 
 import com.techoCrats.telemetry.model.CompileEvent;
+import com.techoCrats.telemetry.model.Session;
 import com.techoCrats.telemetry.model.TelemetryEvent;
 import java.util.ArrayList;
 
@@ -10,7 +11,8 @@ public class CompileSuccessRateCalculator implements MetricCalculator {
         return "compileSuccessRate";
     }
 
-    public double calculate(ArrayList<TelemetryEvent> events) {
+    public double calculate(Session session) {
+        ArrayList<TelemetryEvent> events = session.getEvents();
         int attempts = 0;
         int successes = 0;
         for (TelemetryEvent event : events) {

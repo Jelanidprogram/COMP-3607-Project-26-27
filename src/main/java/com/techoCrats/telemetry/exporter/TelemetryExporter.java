@@ -31,4 +31,10 @@ public class TelemetryExporter {
         strategy.export(session, report, filePath);
         return filePath;
     }
+
+    public String exportToFile(Session session, File file) throws IOException {
+        ReportData report = aggregator.aggregate(session);
+        strategy.export(session, report, file.getAbsolutePath());
+        return file.getAbsolutePath();
+    }
 }

@@ -1,74 +1,60 @@
 package com.techoCrats.telemetry.exporter;
 
-import com.techoCrats.telemetry.model.Json;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import com.techoCrats.telemetry.model.Session;
 import com.techoCrats.telemetry.model.TelemetryEvent;
 import com.techoCrats.telemetry.report.ReportData;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class JsonExportStrategy implements ExportStrategy {
 
+    private static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .serializeNulls()
+            .create();
+
+    @Override
     public String getFileExtension() {
         return "json";
     }
 
+    @Override
     public void export(Session session, ReportData report, String filePath) throws IOException {
-        FileWriter writer = new FileWriter(filePath);
+        FileWriter writer = new FileWriter(filePath, StandardCharsets.UTF_8);
         writer.write(toJson(session, report));
         writer.close();
     }
 
     public String toJson(Session session, ReportData report) {
-        String json = "{\n";
+        LinkedHashMap<String, Object> root = new LinkedHashMap<String, Object>();
+        root.put("schemaVersion", "1.0");
 
-        json = json + "  \"session\": {\n";
-        json = json + "    \"sessionId\": \"" + Json.escape(session.getSessionId()) + "\",\n";
-        json = json + "    \"studentId\": \"" + Json.escape(session.getStudentId()) + "\",\n";
-        json = json + "    \"startTime\": \"" + session.getStartText() + "\",\n";
-        json = json + "    \"endTime\": \"" + session.getEndText() + "\",\n";
-        json = json + "    \"durationSeconds\": " + session.getDurationSeconds() + ",\n";
-        json = json + "    \"totalCompilations\": " + (int) report.getMetric("compileAttempts") + "\n";
-        json = json + "  },\n";
+        LinkedHashMap<String, Object> metadata = new LinkedHashMap<String, Object>();
+        metadata.put("sessionId", session.getSessionId());
+        metadata.put("studentId", session.getStudentId());
+        metadata.put("startTime", session.getStartText());
+        metadata.put("endTime", session.getEndText());
+        metadata.put("durationSeconds", session.getDurationSeconds());
+        metadata.put("totalCompilationAttempts", (int) report.getMetric("compileAttempts"));
+        root.put("session", metadata);
+        root.put("metrics", report.getMetrics());
+        root.put("errorCounts", report.getErrorCounts());
+        root.put("timeline", report.getTimeline());
 
-        json = json + "  \"metrics\": {\n";
-        LinkedHashMap<String, Double> metrics = report.getMetrics();
-        int count = 0;
-        for (String name : metrics.keySet()) {
-            count++;
-            json = json + "    \"" + name + "\": " + metrics.get(name);
-            json = json + (count < metrics.size() ? ",\n" : "\n");
+        JsonArray events = new JsonArray();
+        ArrayList<TelemetryEvent> sessionEvents = session.getEvents();
+        for (TelemetryEvent event : sessionEvents) {
+            events.add(JsonParser.parseString(event.toJson()));
         }
-        json = json + "  },\n";
-
-        json = json + "  \"errorCounts\": {\n";
-        LinkedHashMap<String, Integer> errors = report.getErrorCounts();
-        count = 0;
-        for (String type : errors.keySet()) {
-            count++;
-            json = json + "    \"" + Json.escape(type) + "\": " + errors.get(type);
-            json = json + (count < errors.size() ? ",\n" : "\n");
-        }
-        json = json + "  },\n";
-
-        json = json + "  \"timeline\": [\n";
-        ArrayList<String> timeline = report.getTimeline();
-        for (int i = 0; i < timeline.size(); i++) {
-            json = json + "    \"" + Json.escape(timeline.get(i)) + "\"";
-            json = json + (i < timeline.size() - 1 ? ",\n" : "\n");
-        }
-        json = json + "  ],\n";
-
-        json = json + "  \"events\": [\n";
-        ArrayList<TelemetryEvent> events = session.getEvents();
-        for (int i = 0; i < events.size(); i++) {
-            json = json + "    " + events.get(i).toJson();
-            json = json + (i < events.size() - 1 ? ",\n" : "\n");
-        }
-        json = json + "  ]\n";
-
-        return json + "}\n";
+        root.put("events", events);
+        return GSON.toJson(root) + System.lineSeparator();
     }
 }
