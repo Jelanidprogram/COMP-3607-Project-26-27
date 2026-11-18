@@ -18,6 +18,10 @@ public class ReportAggregator {
         calculators.add(new CompileAttemptsCalculator());
         calculators.add(new CompileSuccessRateCalculator());
         calculators.add(new ErrorRatioCalculator());
+        calculators.add(new EditCountCalculator));
+        calculators.add(new CharactersInsertedCalculator());
+        calculators.add(new EditFrequencyCalculator());
+
     }
 
     public void addCalculator(MetricCalculator calculator) {
@@ -29,7 +33,15 @@ public class ReportAggregator {
 
         LinkedHashMap<String, Double> metrics = new LinkedHashMap<String, Double>();
         for (MetricCalculator calculator : calculators) {
-            metrics.put(calculator.getName(), calculator.calculate(events));
+            double value;
+            if (calculator instanceof ActiveTimeCalculator) {
+                value = ((ActiveTimeCalculator) calculator).calculate(session);
+            } else if (calculator instanceof IdleTimeCalculator) {
+                value = ((IdleTimeCalculator) calculator).calculate(session);
+            } else {
+                value = calculator.calculate(events);
+            }
+            metrics.put(calculator.getName(), value);
         }
 
         return new ReportData(metrics, countErrors(events), buildTimeline(events));

@@ -1,7 +1,10 @@
 package com.techoCrats.telemetry.report;
 
 import com.techoCrats.telemetry.model.TelemetryEvent;
+import com.techoCrats.telemetry.model.EditorEvent;
+import com.techoCrats.telemetry.model.Session;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ActiveTimeCalculator implements MetricCalculator {
 
@@ -22,5 +25,24 @@ public class ActiveTimeCalculator implements MetricCalculator {
             }
         }
         return active;
+
+        public double calculate(Session session) {
+            List<Long> edits = session.getEvents().stream()
+                    .filter(EditorEvent.class::isInstance)
+                    .map(TelemetryEvent::getTimestamp)
+                    .sorted()
+                    .toList();
+            if (edits.isEmpty()) {
+                return calculate(session.getEvents());
+            }
+
+            long active = 0;
+            for (int i = 1; i < edits.size(); i++) {
+                long gap = Math.max(0, (edits.get(i) - edits.get(i - 1)) / 1000);
+                active += Math.min(gap, IDLE_LIMIT_SECONDS);
+            }
+            long finalGap = Math.max(0, (session.getEndTime() - edits.get(edits.size() - 1)) / 1000);
+            active += Math.min(finalGap, IDLE_LIMIT_SECONDS);
+            return active;
     }
 }
