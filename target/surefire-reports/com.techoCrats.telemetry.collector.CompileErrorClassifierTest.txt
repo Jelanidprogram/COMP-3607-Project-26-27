@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.techoCrats.telemetry.collector.CompileErrorClassifierTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 s -- in com.techoCrats.telemetry.collector.CompileErrorClassifierTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.383 s -- in com.techoCrats.telemetry.collector.CompileErrorClassifierTest
