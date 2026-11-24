@@ -28,7 +28,7 @@ public class CompileListenerTest {
         EventCollector collector = new EventCollector();
         CompileListener listener = new CompileListener(collector);
         bluej.extensions2.event.CompileEvent event = new bluej.extensions2.event.CompileEvent(
-                bluej.extensions2.event.CompileEvent.EventType.COMPILE_FAILED_EVENT, new File[0]);
+                bluej.extensions2.event.CompileEvent.EventType.COMPILE_FAILED_EVENT, new File[]{new File("Room.java")});
         event.setErrorMessage("';' expected");
         event.setErrorLineNumber(12);
 
@@ -40,8 +40,9 @@ public class CompileListenerTest {
         assertEquals(1, collector.getEvents().size());
         CompileEvent recorded = (CompileEvent) collector.getEvents().get(0);
         assertFalse(recorded.isSuccessful());
-        assertEquals("COMPILATION_ERROR", recorded.getErrorType());
+        assertEquals("MISSING_SEMICOLON", recorded.getErrorType());
         assertEquals("';' expected", recorded.getErrorMessage());
         assertEquals(12, recorded.getErrorLine());
+        assertEquals(java.util.List.of("Room.java"), recorded.getSourceFiles());
     }
 }

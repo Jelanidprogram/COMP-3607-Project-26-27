@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IdleEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.model</a> &gt; <span class="el_source">IdleEvent.java</span></div><h1>IdleEvent.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.model;
+
+import java.util.LinkedHashMap;
+
+public final class IdleEvent extends TelemetryEvent {
+
+    private final boolean idleStarted;
+
+    public IdleEvent(long timestamp, boolean idleStarted) {
+<span class="fc" id="L10">        super(timestamp, &quot;IDLE&quot;);</span>
+<span class="fc" id="L11">        this.idleStarted = idleStarted;</span>
+<span class="fc" id="L12">    }</span>
+
+    public boolean isIdleStarted() {
+<span class="fc" id="L15">        return idleStarted;</span>
+    }
+
+    @Override
+    public String toJson() {
+<span class="fc" id="L20">        LinkedHashMap&lt;String, Object&gt; values = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L21">        values.put(&quot;type&quot;, getType());</span>
+<span class="fc" id="L22">        values.put(&quot;time&quot;, getTimeText());</span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        values.put(&quot;state&quot;, idleStarted ? &quot;IDLE_STARTED&quot; : &quot;IDLE_ENDED&quot;);</span>
+<span class="fc" id="L24">        return Json.stringify(values);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

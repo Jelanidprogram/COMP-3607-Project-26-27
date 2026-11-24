@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EditorTelemetryTracker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.collector</a> &gt; <span class="el_source">EditorTelemetryTracker.java</span></div><h1>EditorTelemetryTracker.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.collector;
+
+import bluej.extensions2.BClass;
+import bluej.extensions2.editor.DocumentListener;
+import bluej.extensions2.editor.JavaEditor;
+import bluej.extensions2.editor.TextLocation;
+import com.techoCrats.telemetry.model.EditorEvent;
+import com.techoCrats.telemetry.model.IdleEvent;
+import com.techoCrats.telemetry.model.LifecycleEvent;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public final class EditorTelemetryTracker {
+
+<span class="fc" id="L21">    private static final Pattern METHOD_DECLARATION = Pattern.compile(</span>
+<span class="fc" id="L22">            &quot;(?m)^[ \\t]*(?:(?:public|protected|private|static|final|abstract|synchronized|native|strictfp|default)&quot;</span>
+                    + &quot;\\s+)*(?:&lt;[^&gt;\\n]+&gt;\\s+)?(?:[\\w$.,&lt;&gt;?\\[\\]]+\\s+)+&quot;
+                    + &quot;([A-Za-z_$][\\w$]*)\\s*\\(([^;{}]*)\\)\\s*&quot;
+                    + &quot;(?:throws\\s+[\\w$.,\\s]+)?\\s*\\{&quot;);
+<span class="fc" id="L26">    private static final Set&lt;String&gt; NON_METHOD_NAMES = Set.of(</span>
+<span class="fc" id="L27">            &quot;if&quot;, &quot;for&quot;, &quot;while&quot;, &quot;switch&quot;, &quot;catch&quot;, &quot;synchronized&quot;, &quot;try&quot;, &quot;do&quot;, &quot;else&quot;);</span>
+
+    private final EventCollector collector;
+    private final IdleDetector idleDetector;
+<span class="fc" id="L31">    private final Map&lt;JavaEditor, DocumentListener&gt; attachedEditors = new IdentityHashMap&lt;&gt;();</span>
+<span class="fc" id="L32">    private final Map&lt;String, Set&lt;String&gt;&gt; methodDefinitionsByClass = new java.util.HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L34">    public EditorTelemetryTracker(EventCollector collector, IdleDetector idleDetector) {</span>
+<span class="fc" id="L35">        this.collector = Objects.requireNonNull(collector, &quot;collector&quot;);</span>
+<span class="fc" id="L36">        this.idleDetector = Objects.requireNonNull(idleDetector, &quot;idleDetector&quot;);</span>
+<span class="fc" id="L37">    }</span>
+
+    public void attach(BClass bClass) {
+<span class="nc" id="L40">        Objects.requireNonNull(bClass, &quot;bClass&quot;);</span>
+        try {
+<span class="nc" id="L42">            JavaEditor editor = bClass.getJavaEditorIfOpen();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (editor == null) {</span>
+<span class="nc" id="L44">                return;</span>
+            }
+<span class="nc" id="L46">            synchronized (attachedEditors) {</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">                if (attachedEditors.containsKey(editor)) {</span>
+<span class="nc" id="L48">                    return;</span>
+                }
+<span class="nc" id="L50">                String className = bClass.getName();</span>
+<span class="nc" id="L51">                methodDefinitionsByClass.putIfAbsent(className, findMethodDefinitions(readSource(editor)));</span>
+<span class="nc" id="L52">                DocumentListener listener = (offset, oldText, newText, oldCaretPosition, newCaretPosition) -&gt;</span>
+<span class="nc" id="L53">                        recordEdit(className, offset, oldText, newText, readSource(editor), System.currentTimeMillis());</span>
+<span class="nc" id="L54">                attachedEditors.put(editor, listener);</span>
+<span class="nc" id="L55">                editor.addDocumentListener(listener);</span>
+            }
+<span class="nc" id="L57">        } catch (bluej.extensions2.ProjectNotOpenException | bluej.extensions2.PackageNotFoundException exception) {</span>
+<span class="nc" id="L58">            throw new IllegalStateException(&quot;Could not attach telemetry to BlueJ editor&quot;, exception);</span>
+        }
+<span class="nc" id="L60">    }</span>
+
+    public void attachOpenEditors(bluej.extensions2.BlueJ blueJ) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (bluej.extensions2.BProject project : blueJ.getOpenProjects()) {</span>
+            try {
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                for (bluej.extensions2.BPackage bPackage : project.getPackages()) {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">                    for (BClass bClass : bPackage.getClasses()) {</span>
+<span class="nc" id="L67">                        attach(bClass);</span>
+                    }
+                }
+<span class="nc" id="L70">            } catch (bluej.extensions2.ProjectNotOpenException | bluej.extensions2.PackageNotFoundException exception) {</span>
+<span class="nc" id="L71">                throw new IllegalStateException(&quot;Could not inspect open BlueJ classes&quot;, exception);</span>
+            }
+        }
+<span class="nc" id="L74">    }</span>
+
+    void recordEdit(String className, int offset, String oldText, String newText, String sourceText, long timestamp) {
+<span class="fc" id="L77">        String previousText = Objects.requireNonNullElse(oldText, &quot;&quot;);</span>
+<span class="fc" id="L78">        String replacementText = Objects.requireNonNullElse(newText, &quot;&quot;);</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        for (IdleEvent event : idleDetector.recordActivity(timestamp)) {</span>
+<span class="nc" id="L80">            collector.collect(event);</span>
+        }
+<span class="fc" id="L82">        collector.collect(new EditorEvent(timestamp, className, Math.max(offset, 0),</span>
+<span class="fc" id="L83">                previousText.length(), replacementText.length()));</span>
+
+<span class="fc" id="L85">        Set&lt;String&gt; currentDefinitions = findMethodDefinitions(sourceText);</span>
+<span class="fc" id="L86">        Set&lt;String&gt; knownDefinitions = methodDefinitionsByClass.computeIfAbsent(</span>
+<span class="fc" id="L87">                className, ignored -&gt; new LinkedHashSet&lt;&gt;());</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        for (String definition : currentDefinitions) {</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">            if (knownDefinitions.add(definition)) {</span>
+<span class="fc" id="L90">                collector.collect(new LifecycleEvent(timestamp, &quot;METHOD_ADDED&quot;, className + &quot;#&quot; + definition));</span>
+            }
+        }
+<span class="fc" id="L93">    }</span>
+
+    public void finishSession(long timestamp) {
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        for (IdleEvent event : idleDetector.finish(timestamp)) {</span>
+<span class="nc" id="L97">            collector.collect(event);</span>
+        }
+<span class="nc" id="L99">    }</span>
+
+    private String readSource(JavaEditor editor) {
+<span class="nc" id="L102">        TextLocation start = new TextLocation(1, 1);</span>
+<span class="nc" id="L103">        TextLocation end = editor.getTextLocationFromOffset(editor.getTextLength());</span>
+<span class="nc" id="L104">        return editor.getText(start, end);</span>
+    }
+
+    private Set&lt;String&gt; findMethodDefinitions(String source) {
+<span class="pc bpc" id="L108" title="2 of 4 branches missed.">        if (source == null || source.isEmpty()) {</span>
+<span class="nc" id="L109">            return Collections.emptySet();</span>
+        }
+<span class="fc" id="L111">        Set&lt;String&gt; definitions = new LinkedHashSet&lt;&gt;();</span>
+<span class="fc" id="L112">        Matcher matcher = METHOD_DECLARATION.matcher(source);</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        while (matcher.find()) {</span>
+<span class="fc" id="L114">            String name = matcher.group(1);</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">            if (!NON_METHOD_NAMES.contains(name)) {</span>
+<span class="fc" id="L116">                definitions.add(name + &quot;(&quot; + matcher.group(2).replaceAll(&quot;\\s+&quot;, &quot; &quot;).trim() + &quot;)&quot;);</span>
+            }
+        }
+<span class="fc" id="L119">        return definitions;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

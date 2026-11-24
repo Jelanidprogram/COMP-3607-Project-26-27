@@ -36,6 +36,15 @@ If you use another BlueJ release or installation path, adjust the command and
 the `bluej.version` property in `pom.xml` to match. Then build and run tests:
 
 ```powershell
-mvn test
+mvn verify
 ```
+
+`mvn package` also creates an installable BlueJ extension JAR at
+`target/bluej-telemetry-1.0-SNAPSHOT-bluej-extension.jar`. This JAR bundles
+the runtime libraries used for JSON and PDF export; BlueJ provides its own
+extension API and JavaFX runtime.
+
+To try the extension, close BlueJ, copy that JAR into BlueJ's extensions
+folder, and restart BlueJ. From the Tools menu, choose **Export telemetry
+report...**, then select PDF and a save location.
 "# COMP-3607-Project-26-27" 

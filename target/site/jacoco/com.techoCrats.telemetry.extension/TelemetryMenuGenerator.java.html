@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TelemetryMenuGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.extension</a> &gt; <span class="el_source">TelemetryMenuGenerator.java</span></div><h1>TelemetryMenuGenerator.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.extension;
+
+import bluej.extensions2.BPackage;
+import bluej.extensions2.BlueJ;
+import bluej.extensions2.MenuGenerator;
+import com.techoCrats.telemetry.exporter.JsonExportStrategy;
+import com.techoCrats.telemetry.exporter.PdfExportStrategy;
+import com.techoCrats.telemetry.exporter.TelemetryExporter;
+import com.techoCrats.telemetry.model.Session;
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.LongConsumer;
+import java.util.function.Supplier;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.MenuItem;
+import javafx.stage.FileChooser;
+
+public final class TelemetryMenuGenerator extends MenuGenerator {
+
+    private final BlueJ blueJ;
+    private final Supplier&lt;Session&gt; sessionSupplier;
+    private final LongConsumer recordExportBoundary;
+    private final TelemetryExporter exporter;
+
+<span class="nc" id="L28">    public TelemetryMenuGenerator(BlueJ blueJ, Supplier&lt;Session&gt; sessionSupplier, LongConsumer recordExportBoundary,</span>
+                                  TelemetryExporter exporter) {
+<span class="nc" id="L30">        this.blueJ = Objects.requireNonNull(blueJ, &quot;blueJ&quot;);</span>
+<span class="nc" id="L31">        this.sessionSupplier = Objects.requireNonNull(sessionSupplier, &quot;sessionSupplier&quot;);</span>
+<span class="nc" id="L32">        this.recordExportBoundary = Objects.requireNonNull(recordExportBoundary, &quot;recordExportBoundary&quot;);</span>
+<span class="nc" id="L33">        this.exporter = Objects.requireNonNull(exporter, &quot;exporter&quot;);</span>
+<span class="nc" id="L34">    }</span>
+
+    @Override
+    public MenuItem getToolsMenuItem(BPackage bPackage) {
+<span class="nc" id="L38">        MenuItem exportItem = new MenuItem(&quot;Export telemetry report...&quot;);</span>
+<span class="nc" id="L39">        exportItem.setOnAction(event -&gt; exportReport());</span>
+<span class="nc" id="L40">        return exportItem;</span>
+    }
+
+    private void exportReport() {
+<span class="nc" id="L44">        Session session = sessionSupplier.get();</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (session == null) {</span>
+<span class="nc" id="L46">            showError(&quot;There is no telemetry session to export.&quot;);</span>
+<span class="nc" id="L47">            return;</span>
+        }
+
+<span class="nc" id="L50">        ChoiceDialog&lt;String&gt; formatDialog = new ChoiceDialog&lt;&gt;(&quot;PDF&quot;, &quot;PDF&quot;, &quot;JSON&quot;);</span>
+<span class="nc" id="L51">        formatDialog.setTitle(&quot;Export telemetry&quot;);</span>
+<span class="nc" id="L52">        formatDialog.setHeaderText(&quot;Choose a report format&quot;);</span>
+<span class="nc" id="L53">        Optional&lt;String&gt; selectedFormat = formatDialog.showAndWait();</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (selectedFormat.isEmpty()) {</span>
+<span class="nc" id="L55">            return;</span>
+        }
+
+<span class="nc" id="L58">        boolean pdf = selectedFormat.get().equals(&quot;PDF&quot;);</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        String extension = pdf ? &quot;pdf&quot; : &quot;json&quot;;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        exporter.setStrategy(pdf ? new PdfExportStrategy() : new JsonExportStrategy());</span>
+
+<span class="nc" id="L62">        FileChooser chooser = new FileChooser();</span>
+<span class="nc" id="L63">        chooser.setTitle(&quot;Save telemetry report&quot;);</span>
+<span class="nc" id="L64">        chooser.setInitialFileName(&quot;telemetry-&quot; + session.getSessionId() + &quot;.&quot; + extension);</span>
+<span class="nc" id="L65">        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">                pdf ? &quot;PDF report&quot; : &quot;JSON data&quot;, &quot;*.&quot; + extension));</span>
+<span class="nc" id="L67">        File selectedFile = chooser.showSaveDialog(blueJ.getCurrentWindow());</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (selectedFile == null) {</span>
+<span class="nc" id="L69">            return;</span>
+        }
+<span class="nc" id="L71">        File outputFile = withExtension(selectedFile, extension);</span>
+
+        try {
+<span class="nc" id="L74">            long now = System.currentTimeMillis();</span>
+<span class="nc" id="L75">            recordExportBoundary.accept(now);</span>
+<span class="nc" id="L76">            exporter.exportToFile(session, outputFile);</span>
+<span class="nc" id="L77">            Alert confirmation = new Alert(Alert.AlertType.INFORMATION);</span>
+<span class="nc" id="L78">            confirmation.setTitle(&quot;Telemetry exported&quot;);</span>
+<span class="nc" id="L79">            confirmation.setHeaderText(&quot;Report saved&quot;);</span>
+<span class="nc" id="L80">            confirmation.setContentText(outputFile.getAbsolutePath());</span>
+<span class="nc" id="L81">            confirmation.showAndWait();</span>
+<span class="nc" id="L82">        } catch (IOException exception) {</span>
+<span class="nc" id="L83">            showError(&quot;Could not export telemetry report: &quot; + exception.getMessage());</span>
+        }
+<span class="nc" id="L85">    }</span>
+
+    private File withExtension(File file, String extension) {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (file.getName().toLowerCase(java.util.Locale.ROOT).endsWith(&quot;.&quot; + extension)) {</span>
+<span class="nc" id="L89">            return file;</span>
+        }
+<span class="nc" id="L91">        return new File(file.getAbsolutePath() + &quot;.&quot; + extension);</span>
+    }
+
+    private void showError(String message) {
+<span class="nc" id="L95">        Alert alert = new Alert(Alert.AlertType.ERROR);</span>
+<span class="nc" id="L96">        alert.setTitle(&quot;Telemetry export failed&quot;);</span>
+<span class="nc" id="L97">        alert.setHeaderText(&quot;The report could not be exported&quot;);</span>
+<span class="nc" id="L98">        alert.setContentText(message);</span>
+<span class="nc" id="L99">        alert.showAndWait();</span>
+<span class="nc" id="L100">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

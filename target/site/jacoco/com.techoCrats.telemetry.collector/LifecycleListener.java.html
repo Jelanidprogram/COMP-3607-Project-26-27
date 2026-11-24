@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LifecycleListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.collector</a> &gt; <span class="el_source">LifecycleListener.java</span></div><h1>LifecycleListener.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.collector;
+
+import bluej.extensions2.BClass;
+import bluej.extensions2.BPackage;
+import bluej.extensions2.event.ClassEvent;
+import bluej.extensions2.event.PackageEvent;
+import com.techoCrats.telemetry.model.LifecycleEvent;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public final class LifecycleListener implements bluej.extensions2.event.PackageListener,
+        bluej.extensions2.event.ClassListener {
+
+<span class="nc" id="L19">    private static final Logger LOGGER = Logger.getLogger(LifecycleListener.class.getName());</span>
+
+    private final EventCollector collector;
+    private final EditorTelemetryTracker editorTracker;
+<span class="nc" id="L23">    private final Set&lt;String&gt; knownClasses = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L24">    private final Set&lt;String&gt; openPackages = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L25">    private final Map&lt;String, Integer&gt; packageCountsByProject = new HashMap&lt;&gt;();</span>
+
+    public LifecycleListener(EventCollector collector) {
+<span class="nc" id="L28">        this(collector, null);</span>
+<span class="nc" id="L29">    }</span>
+
+<span class="nc" id="L31">    public LifecycleListener(EventCollector collector, EditorTelemetryTracker editorTracker) {</span>
+<span class="nc" id="L32">        this.collector = Objects.requireNonNull(collector, &quot;collector&quot;);</span>
+<span class="nc" id="L33">        this.editorTracker = editorTracker;</span>
+<span class="nc" id="L34">    }</span>
+
+    @Override
+    public void packageOpened(PackageEvent event) {
+<span class="nc" id="L38">        BPackage bPackage = event.getPackage();</span>
+        try {
+<span class="nc" id="L40">            String projectId = projectId(bPackage);</span>
+<span class="nc" id="L41">            String packageId = projectId + &quot;::&quot; + bPackage.getName();</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">            if (openPackages.add(packageId)) {</span>
+<span class="nc" id="L43">                int count = packageCountsByProject.getOrDefault(projectId, 0);</span>
+<span class="nc" id="L44">                packageCountsByProject.put(projectId, count + 1);</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">                if (count == 0) {</span>
+<span class="nc" id="L46">                    record(&quot;PROJECT_OPENED&quot;, projectId);</span>
+                }
+            }
+<span class="nc" id="L49">            record(&quot;PACKAGE_OPENED&quot;, bPackage.toString());</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">            for (BClass bClass : bPackage.getClasses()) {</span>
+<span class="nc" id="L51">                knownClasses.add(classId(bClass));</span>
+<span class="nc" id="L52">                attachEditor(bClass);</span>
+            }
+<span class="nc" id="L54">        } catch (bluej.extensions2.ProjectNotOpenException | bluej.extensions2.PackageNotFoundException exception) {</span>
+<span class="nc" id="L55">            LOGGER.log(Level.WARNING, &quot;Could not inspect classes in opened BlueJ package&quot;, exception);</span>
+        }
+<span class="nc" id="L57">    }</span>
+
+    @Override
+    public void packageClosing(PackageEvent event) {
+<span class="nc" id="L61">        BPackage bPackage = event.getPackage();</span>
+        try {
+<span class="nc" id="L63">            String projectId = projectId(bPackage);</span>
+<span class="nc" id="L64">            String packageId = projectId + &quot;::&quot; + bPackage.getName();</span>
+<span class="nc" id="L65">            record(&quot;PACKAGE_CLOSING&quot;, bPackage.toString());</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (openPackages.remove(packageId)) {</span>
+<span class="nc" id="L67">                int count = packageCountsByProject.getOrDefault(projectId, 1) - 1;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                if (count &lt;= 0) {</span>
+<span class="nc" id="L69">                    packageCountsByProject.remove(projectId);</span>
+<span class="nc" id="L70">                    record(&quot;PROJECT_CLOSED&quot;, projectId);</span>
+<span class="nc" id="L71">                } else {</span>
+<span class="nc" id="L72">                    packageCountsByProject.put(projectId, count);</span>
+                }
+            }
+<span class="nc" id="L75">        } catch (bluej.extensions2.ProjectNotOpenException | bluej.extensions2.PackageNotFoundException exception) {</span>
+<span class="nc" id="L76">            LOGGER.log(Level.WARNING, &quot;Could not identify closing BlueJ project&quot;, exception);</span>
+        }
+<span class="nc" id="L78">    }</span>
+
+    @Override
+    public void classStateChanged(ClassEvent event) {
+<span class="nc" id="L82">        BClass bClass = event.getBClass();</span>
+        try {
+<span class="nc" id="L84">            String id = classId(bClass);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            String action = knownClasses.add(id) ? &quot;CLASS_CREATED&quot; : &quot;CLASS_MODIFIED&quot;;</span>
+<span class="nc" id="L86">            record(action, bClass.getName());</span>
+<span class="nc" id="L87">            attachEditor(bClass);</span>
+<span class="nc" id="L88">        } catch (bluej.extensions2.ProjectNotOpenException | bluej.extensions2.PackageNotFoundException exception) {</span>
+<span class="nc" id="L89">            LOGGER.log(Level.WARNING, &quot;Could not inspect changed BlueJ class&quot;, exception);</span>
+        }
+<span class="nc" id="L91">    }</span>
+
+    @Override
+    public void classNameChanged(ClassEvent event) {
+<span class="nc" id="L95">        BClass bClass = event.getBClass();</span>
+        try {
+<span class="nc" id="L97">            String packageId = projectId(bClass.getPackage()) + &quot;::&quot; + bClass.getPackage().getName();</span>
+<span class="nc" id="L98">            knownClasses.remove(packageId + &quot;::&quot; + event.getOldName());</span>
+<span class="nc" id="L99">            knownClasses.add(classId(bClass));</span>
+<span class="nc" id="L100">            record(&quot;CLASS_RENAMED&quot;, event.getOldName() + &quot; -&gt; &quot; + bClass.getName());</span>
+<span class="nc" id="L101">            attachEditor(bClass);</span>
+<span class="nc" id="L102">        } catch (bluej.extensions2.ProjectNotOpenException | bluej.extensions2.PackageNotFoundException exception) {</span>
+<span class="nc" id="L103">            LOGGER.log(Level.WARNING, &quot;Could not inspect renamed BlueJ class&quot;, exception);</span>
+        }
+<span class="nc" id="L105">    }</span>
+
+    @Override
+    public void classRemoved(ClassEvent event) {
+<span class="nc" id="L109">        BClass bClass = event.getBClass();</span>
+        try {
+<span class="nc" id="L111">            knownClasses.remove(classId(bClass));</span>
+<span class="nc" id="L112">            record(&quot;CLASS_REMOVED&quot;, bClass.getName());</span>
+<span class="nc" id="L113">        } catch (bluej.extensions2.ProjectNotOpenException | bluej.extensions2.PackageNotFoundException exception) {</span>
+<span class="nc" id="L114">            LOGGER.log(Level.WARNING, &quot;Could not inspect removed BlueJ class&quot;, exception);</span>
+        }
+<span class="nc" id="L116">    }</span>
+
+    private String projectId(BPackage bPackage) throws bluej.extensions2.ProjectNotOpenException,
+            bluej.extensions2.PackageNotFoundException {
+<span class="nc" id="L120">        return bPackage.getProject().getDir().getAbsolutePath();</span>
+    }
+
+    private String classId(BClass bClass) throws bluej.extensions2.ProjectNotOpenException,
+            bluej.extensions2.PackageNotFoundException {
+<span class="nc" id="L125">        BPackage bPackage = bClass.getPackage();</span>
+<span class="nc" id="L126">        return projectId(bPackage) + &quot;::&quot; + bPackage.getName() + &quot;::&quot; + bClass.getName();</span>
+    }
+
+    private void attachEditor(BClass bClass) {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (editorTracker != null) {</span>
+<span class="nc" id="L131">            editorTracker.attach(bClass);</span>
+        }
+<span class="nc" id="L133">    }</span>
+
+    private void record(String action, String name) {
+<span class="nc" id="L136">        collector.collect(new LifecycleEvent(System.currentTimeMillis(), action, name));</span>
+<span class="nc" id="L137">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

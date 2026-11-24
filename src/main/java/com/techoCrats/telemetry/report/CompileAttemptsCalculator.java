@@ -1,12 +1,10 @@
 package com.techoCrats.telemetry.report;
 
-import com.techoCrats.telemetry.model.EditorEvent;
 import com.techoCrats.telemetry.model.TelemetryEvent;
 import java.util.ArrayList;
 
 public class CompileAttemptsCalculator implements MetricCalculator {
 
-    @Override
     public String getName() {
         return "compileAttempts";
     }

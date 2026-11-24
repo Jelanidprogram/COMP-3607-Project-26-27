@@ -1,6 +1,7 @@
 package com.techoCrats.telemetry.model;
 
 import java.util.Objects;
+import java.util.LinkedHashMap;
 
 public final class LifecycleEvent extends TelemetryEvent {
 
@@ -23,7 +24,11 @@ public final class LifecycleEvent extends TelemetryEvent {
 
     @Override
     public String toJson() {
-        return "{\"" + jsonPrefix() + "\", \"action\": \"" + Json.escape(action)
-                + "\", \"name\": \"" + Json.escape(name) + "\"}";
+        LinkedHashMap<String, Object> values = new LinkedHashMap<>();
+        values.put("type", getType());
+        values.put("time", getTimeText());
+        values.put("action", action);
+        values.put("name", name);
+        return Json.stringify(values);
     }
 }

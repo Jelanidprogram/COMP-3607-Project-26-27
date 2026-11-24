@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompileErrorClassifier.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.collector</a> &gt; <span class="el_source">CompileErrorClassifier.java</span></div><h1>CompileErrorClassifier.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.collector;
+
+import java.util.Locale;
+
+public final class CompileErrorClassifier {
+
+    private CompileErrorClassifier() {
+    }
+
+    public static String classify(String message) {
+<span class="pc bpc" id="L11" title="1 of 4 branches missed.">        if (message == null || message.isBlank()) {</span>
+<span class="fc" id="L12">            return &quot;COMPILATION_ERROR&quot;;</span>
+        }
+
+<span class="fc" id="L15">        String normalized = message.toLowerCase(Locale.ROOT);</span>
+<span class="pc bpc" id="L16" title="1 of 4 branches missed.">        if (normalized.contains(&quot;';' expected&quot;) || normalized.contains(&quot;semicolon&quot;)) {</span>
+<span class="fc" id="L17">            return &quot;MISSING_SEMICOLON&quot;;</span>
+        }
+<span class="pc bpc" id="L19" title="1 of 4 branches missed.">        if (normalized.contains(&quot;cannot find symbol&quot;) || normalized.contains(&quot;does not exist&quot;)) {</span>
+<span class="fc" id="L20">            return &quot;UNRESOLVED_SYMBOL&quot;;</span>
+        }
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (normalized.contains(&quot;incompatible types&quot;)) {</span>
+<span class="fc" id="L23">            return &quot;INCOMPATIBLE_TYPES&quot;;</span>
+        }
+<span class="pc bpc" id="L25" title="2 of 4 branches missed.">        if (normalized.contains(&quot;reached end of file&quot;) || normalized.contains(&quot;expected }&quot;)) {</span>
+<span class="nc" id="L26">            return &quot;UNMATCHED_BRACE&quot;;</span>
+        }
+<span class="pc bpc" id="L28" title="2 of 4 branches missed.">        if (normalized.contains(&quot;already defined&quot;) || normalized.contains(&quot;duplicate&quot;)) {</span>
+<span class="nc" id="L29">            return &quot;DUPLICATE_DECLARATION&quot;;</span>
+        }
+<span class="fc" id="L31">        return &quot;COMPILATION_ERROR&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

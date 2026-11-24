@@ -1,6 +1,8 @@
 package com.techoCrats.telemetry.collector;
 
 import com.techoCrats.telemetry.model.CompileEvent;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public final class CompileListener implements bluej.extensions2.event.CompileListener {
@@ -28,7 +30,7 @@ public final class CompileListener implements bluej.extensions2.event.CompileLis
 
     @Override
     public void compileSucceeded(bluej.extensions2.event.CompileEvent event) {
-        collector.collect(new CompileEvent(System.currentTimeMillis(), true, null, null, 0));
+        collector.collect(new CompileEvent(System.currentTimeMillis(), true, null, null, 0, sourceFiles(event)));
     }
 
     @Override
@@ -36,8 +38,19 @@ public final class CompileListener implements bluej.extensions2.event.CompileLis
         collector.collect(new CompileEvent(
                 System.currentTimeMillis(),
                 false,
-                "COMPILATION_ERROR",
+                CompileErrorClassifier.classify(event.getErrorMessage()),
                 event.getErrorMessage(),
-                event.getErrorLineNumber()));
+                event.getErrorLineNumber(),
+                sourceFiles(event)));
+    }
+
+    private ArrayList<String> sourceFiles(bluej.extensions2.event.CompileEvent event) {
+        ArrayList<String> paths = new ArrayList<>();
+        for (File file : event.getFiles()) {
+            if (file != null) {
+                paths.add(file.getName());
+            }
+        }
+        return paths;
     }
 }

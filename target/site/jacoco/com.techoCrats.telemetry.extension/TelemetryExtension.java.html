@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TelemetryExtension.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bluej-telemetry</a> &gt; <a href="index.source.html" class="el_package">com.techoCrats.telemetry.extension</a> &gt; <span class="el_source">TelemetryExtension.java</span></div><h1>TelemetryExtension.java</h1><pre class="source lang-java linenums">package com.techoCrats.telemetry.extension;
+
+import bluej.extensions2.BlueJ;
+import bluej.extensions2.Extension;
+import com.techoCrats.telemetry.collector.EditorTelemetryTracker;
+import com.techoCrats.telemetry.collector.CompileListener;
+import com.techoCrats.telemetry.collector.EventCollector;
+import com.techoCrats.telemetry.collector.IdleDetector;
+import com.techoCrats.telemetry.collector.LifecycleListener;
+import com.techoCrats.telemetry.collector.RunListener;
+import com.techoCrats.telemetry.exporter.PdfExportStrategy;
+import com.techoCrats.telemetry.exporter.TelemetryExporter;
+import com.techoCrats.telemetry.model.Session;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+
+<span class="nc" id="L21">public class TelemetryExtension extends Extension {</span>
+
+<span class="nc" id="L23">    private static final Logger LOGGER = Logger.getLogger(TelemetryExtension.class.getName());</span>
+
+    private BlueJ blueJ;
+    private EventCollector collector;
+    private CompileListener compileListener;
+    private RunListener runListener;
+    private LifecycleListener lifecycleListener;
+    private EditorTelemetryTracker editorTracker;
+    private Session session;
+    private Timeline editorScan;
+
+    @Override
+    public boolean isCompatible() {
+<span class="nc" id="L36">        return true;</span>
+    }
+
+    @Override
+    public void startup(BlueJ blueJ) {
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (this.blueJ != null) {</span>
+<span class="nc" id="L42">            terminate();</span>
+        }
+
+<span class="nc" id="L45">        this.blueJ = blueJ;</span>
+<span class="nc" id="L46">        collector = new EventCollector();</span>
+<span class="nc" id="L47">        String studentId = blueJ.getExtensionPropertyString(&quot;studentId&quot;, &quot;student-placeholder&quot;);</span>
+<span class="nc" id="L48">        session = Session.builder().studentId(studentId).build();</span>
+<span class="nc" id="L49">        collector.addObserver(session::addEvent);</span>
+<span class="nc" id="L50">        editorTracker = new EditorTelemetryTracker(collector, new IdleDetector());</span>
+<span class="nc" id="L51">        compileListener = new CompileListener(collector);</span>
+<span class="nc" id="L52">        runListener = new RunListener(collector);</span>
+<span class="nc" id="L53">        lifecycleListener = new LifecycleListener(collector, editorTracker);</span>
+
+<span class="nc" id="L55">        blueJ.addCompileListener(compileListener);</span>
+<span class="nc" id="L56">        blueJ.addInvocationFinishedListener(runListener);</span>
+<span class="nc" id="L57">        blueJ.addPackageListener(lifecycleListener);</span>
+<span class="nc" id="L58">        blueJ.addClassListener(lifecycleListener);</span>
+<span class="nc" id="L59">        blueJ.setMenuGenerator(new TelemetryMenuGenerator(</span>
+<span class="nc" id="L60">                blueJ, () -&gt; session, this::recordExportBoundary, new TelemetryExporter(new PdfExportStrategy())));</span>
+<span class="nc" id="L61">        editorScan = new Timeline(new KeyFrame(Duration.seconds(2), event -&gt; scanOpenEditors()));</span>
+<span class="nc" id="L62">        editorScan.setCycleCount(Animation.INDEFINITE);</span>
+<span class="nc" id="L63">        editorScan.play();</span>
+<span class="nc" id="L64">    }</span>
+
+    @Override
+    public void terminate() {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (blueJ != null) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (editorScan != null) {</span>
+<span class="nc" id="L70">                editorScan.stop();</span>
+<span class="nc" id="L71">                editorScan = null;</span>
+            }
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (session != null) {</span>
+<span class="nc" id="L74">                endSession(System.currentTimeMillis());</span>
+            }
+<span class="nc" id="L76">            blueJ.removeCompileListener(compileListener);</span>
+<span class="nc" id="L77">            blueJ.removeInvocationFinishedListener(runListener);</span>
+<span class="nc" id="L78">            blueJ.removePackageListener(lifecycleListener);</span>
+<span class="nc" id="L79">            blueJ.removeClassListener(lifecycleListener);</span>
+<span class="nc" id="L80">            blueJ = null;</span>
+        }
+<span class="nc" id="L82">    }</span>
+
+    private void scanOpenEditors() {
+<span class="nc bnc" id="L85" title="All 4 branches missed.">        if (blueJ == null || editorTracker == null) {</span>
+<span class="nc" id="L86">            return;</span>
+        }
+        try {
+<span class="nc" id="L89">            editorTracker.attachOpenEditors(blueJ);</span>
+<span class="nc" id="L90">        } catch (IllegalStateException exception) {</span>
+<span class="nc" id="L91">            LOGGER.log(Level.WARNING, &quot;Could not scan BlueJ editors for telemetry&quot;, exception);</span>
+        }
+<span class="nc" id="L93">    }</span>
+
+    private void endSession(long timestamp) {
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (editorTracker != null) {</span>
+<span class="nc" id="L97">            editorTracker.finishSession(timestamp);</span>
+        }
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (session != null) {</span>
+<span class="nc" id="L100">            session.end(timestamp);</span>
+        }
+<span class="nc" id="L102">    }</span>
+
+    private void recordExportBoundary(long timestamp) {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (editorTracker != null) {</span>
+<span class="nc" id="L106">            editorTracker.finishSession(timestamp);</span>
+        }
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (session != null) {</span>
+<span class="nc" id="L109">            session.updateEndTime(timestamp);</span>
+        }
+<span class="nc" id="L111">    }</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L115">        return &quot;BlueJ Telemetry&quot;;</span>
+    }
+
+    @Override
+    public String getVersion() {
+<span class="nc" id="L120">        return &quot;1.0&quot;;</span>
+    }
+
+    public EventCollector getCollector() {
+<span class="nc" id="L124">        return collector;</span>
+    }
+
+    public Session getSession() {
+<span class="nc" id="L128">        return session;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
